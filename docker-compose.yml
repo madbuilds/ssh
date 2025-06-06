@@ -1,0 +1,31 @@
+services:
+  openssh-server:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    user: "0:999"
+    group_add:
+      - ping
+      - root
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Etc/UTC
+#      - PUBLIC_KEY=${SSH_PUBLIC_KEY} #optional
+#      - PUBLIC_KEY_FILE=/pth/to/file #optional
+      - PUBLIC_KEY_DIR=/config/keys #optional
+#      - PUBLIC_KEY_URL=https://github.com/username.keys #optional
+      - SUDO_ACCESS=true #optional
+      - PASSWORD_ACCESS=false #optional
+      - USER_PASSWORD=1234 #optional
+#      - USER_PASSWORD_FILE=/path/to/file #optional
+      - USER_NAME=admin #optional
+      - LOG_STDOUT= #optional
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - C:\Users\admin\vms\projects:/data/compose/:rw
+      - ./data/config:/config
+#      - /:/data/host/:rw
+    ports:
+      - 2222:2222
+    restart: unless-stopped

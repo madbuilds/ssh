@@ -1,3 +1,7 @@
+networks:
+  infra-traefik-network:
+    external: true
+
 services:
   openssh-server:
     build:
@@ -7,6 +11,7 @@ services:
     group_add:
       - ping
       - root
+    hostname: openssh
     environment:
       - PUID=0
       - PGID=0
@@ -21,11 +26,20 @@ services:
 #      - USER_PASSWORD_FILE=/path/to/file #optional
       - USER_NAME=admin #optional
       - LOG_STDOUT= #optional
+    networks:
+      - infra-traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.services.openssh-server.loadbalancer.server.port=2222"
+      - "traefik.tcp.routers.openssh-server.rule=HostSNI(`ssh.devim.duckdns.org`)"
+      - "traefik.tcp.routers.openssh-server.tls=true"
+      - "traefik.tcp.routers.openssh-server.entrypoint=ssh"
+      - "traefik.docker.network=infra-traefik-network"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - C:\Users\admin\vms\projects:/data/compose/:rw
+      - /data/compose/:/data/compose/:rw
       - ./data/config:/config
-#      - /:/data/host/:rw
+      - /:/data/host/:rw
     ports:
       - 2222:2222
     restart: unless-stopped
